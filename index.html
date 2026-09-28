@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111827">
+<title>Triathlon Builder • Academia 2026–2028</title>
+<style>
+:root{
+  --bg:#f3f4f6;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;
+  --primary:#111827;--accent:#2563eb;--green:#16a34a;--orange:#ea580c;--red:#dc2626;
+  --shadow:0 10px 30px rgba(17,24,39,.08);--radius:20px
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+.sidebar{width:260px;background:#0b1220;color:#fff;padding:22px 16px;position:fixed;inset:0 auto 0 0;z-index:30;overflow:auto}
+.brand{font-weight:900;font-size:20px;display:flex;gap:10px;align-items:center;margin:4px 8px 28px}
+.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#22c55e);display:grid;place-items:center}
+.nav button{width:100%;border:0;background:transparent;color:#cbd5e1;text-align:left;padding:13px 12px;border-radius:12px;margin:3px 0;font-weight:700}
+.nav button.active,.nav button:hover{background:#1e293b;color:#fff}
+.sidebar small{color:#64748b}
+.main{margin-left:260px;width:calc(100% - 260px);padding:28px;max-width:1600px}
+.topbar{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:24px}
+.topbar h1{margin:0;font-size:28px}
+.topbar p{margin:5px 0 0;color:var(--muted)}
+.mobile-menu{display:none}
+.grid{display:grid;gap:18px}
+.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.kpi .label{font-size:13px;color:var(--muted);font-weight:700}
+.kpi .value{font-size:30px;font-weight:900;margin:7px 0}
+.kpi .sub{font-size:12px;color:var(--muted)}
+.progress{height:9px;background:#e5e7eb;border-radius:99px;overflow:hidden}
+.progress>i{display:block;height:100%;background:linear-gradient(90deg,#2563eb,#22c55e);border-radius:99px}
+.section{display:none}.section.active{display:block}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin:28px 0 14px;gap:15px}
+.section-title h2{margin:0;font-size:21px}
+.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:800;background:var(--primary);color:white}
+.btn.secondary{background:#eef2ff;color:#3730a3}
+.btn.green{background:var(--green)}
+.btn.danger{background:#fee2e2;color:#991b1b}
+.btn.ghost{background:#f3f4f6;color:#111827}
+.btn.small{padding:8px 10px;font-size:12px}
+.two{grid-template-columns:1.4fr 1fr}
+.three{grid-template-columns:repeat(3,1fr)}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.day{border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff;min-height:120px}
+.day strong{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}
+.day .date{font-size:22px;font-weight:900}
+.day.training{border-color:#bfdbfe;background:#eff6ff}
+.day.rest{background:#f9fafb}
+.day.today{outline:3px solid #2563eb;outline-offset:1px}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800;background:#e5e7eb;color:#374151;margin-top:8px}
+.tag.blue{background:#dbeafe;color:#1d4ed8}.tag.green{background:#dcfce7;color:#166534}.tag.orange{background:#ffedd5;color:#9a3412}
+.workout-list{display:grid;gap:10px}
+.workout-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;border:1px solid var(--line);border-radius:15px;padding:11px;background:#fff}
+.workout-row.done{background:#f0fdf4;border-color:#bbf7d0}
+
+.check{width:28px;height:28px;accent-color:#16a34a}
+.exercise-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.exercise{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
+
+.exercise .body{padding:15px}
+.exercise h3{margin:0 0 5px;font-size:17px}
+.exercise p{margin:6px 0;color:var(--muted);font-size:13px;line-height:1.5}
+.meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.meta span{font-size:11px;background:#f3f4f6;border-radius:8px;padding:5px 7px;font-weight:800}
+.tabs{display:flex;gap:8px;overflow:auto;padding-bottom:3px}
+.tabs button{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 13px;font-weight:800}
+.tabs button.active{background:#111827;color:#fff}
+.phase{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.phase-card{padding:18px;border:1px solid var(--line);border-radius:18px;background:#fff}
+.phase-card.current{border:2px solid #2563eb}
+.phase-card h3{margin:0 0 5px}
+.phase-card p{color:var(--muted);font-size:13px;line-height:1.5}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line);font-size:13px}
+th{font-size:11px;text-transform:uppercase;color:var(--muted)}
+input,textarea,select{border:1px solid var(--line);border-radius:11px;padding:10px;background:#fff;color:var(--ink);width:100%}
+textarea{min-height:90px;resize:vertical}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.streak{font-size:42px;font-weight:950}
+.bar-chart{display:flex;align-items:end;gap:8px;height:150px;padding-top:15px}
+.bar{flex:1;background:#2563eb;border-radius:8px 8px 3px 3px;min-height:4px;position:relative}
+.bar span{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
+.modal.open{display:flex}
+.modal-box{background:#fff;border-radius:22px;max-width:720px;width:100%;max-height:90vh;overflow:auto;padding:22px}
+.modal-head{display:flex;justify-content:space-between;align-items:center}
+.close{border:0;background:#f3f4f6;border-radius:10px;width:36px;height:36px}
+.timer{font-size:52px;font-weight:900;text-align:center;margin:20px}
+.toast{position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;padding:13px 16px;border-radius:12px;display:none;z-index:200}
+.toast.show{display:block}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.two,.three,.phase{grid-template-columns:1fr}.exercise-grid{grid-template-columns:1fr}}
+@media(max-width:800px){
+ .sidebar{transform:translateX(-100%);transition:.2s}.sidebar.open{transform:translateX(0)}
+ .main{margin-left:0;width:100%;padding:16px}.mobile-menu{display:block}
+ .topbar{align-items:flex-start}.topbar h1{font-size:22px}.week{grid-template-columns:repeat(2,1fr)}
+ .form-grid{grid-template-columns:1fr}.workout-row{grid-template-columns:1fr auto}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><div class="logo">⚡</div><div>Triathlon<br>Builder</div></div>
+  <nav class="nav">
+    <button class="active" data-section="dashboard">🏠 Dashboard</button>
+    <button data-section="treino">🏋️ Treino da semana</button>
+    <button data-section="exercicios">💪 Exercícios</button>
+    <button data-section="calendario">📅 Calendário</button>
+    <button data-section="progresso">📈 Progresso</button>
+    <button data-section="periodizacao">🧭 Periodização</button>
+    <button data-section="config">⚙️ Configurações</button>
+  </nav>
+  <div style="margin-top:30px;padding:12px"><small>Plano-base</small><br><b>Academia 6x/semana</b><br><small>Domingo = descanso</small></div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <div style="display:flex;gap:10px;align-items:center">
+    <button class="btn ghost mobile-menu" onclick="toggleMenu()">☰</button>
+    <div><h1 id="pageTitle">Dashboard</h1><p id="todayText"></p></div>
+  </div>
+  <button class="btn green" onclick="checkinToday()">✓ Check-in de hoje</button>
+</header>
+
+<section id="dashboard" class="section active">
+  <div class="grid kpis">
+    <div class="card kpi"><div class="label">Treinos concluídos</div><div class="value" id="kpiDone">0</div><div class="sub">nesta semana</div></div>
+    <div class="card kpi"><div class="label">Sequência atual</div><div class="value" id="kpiStreak">0 🔥</div><div class="sub">dias consecutivos</div></div>
+    <div class="card kpi"><div class="label">Sessões planejadas</div><div class="value">6</div><div class="sub">por semana</div></div>
+    <div class="card kpi"><div class="label">Meta triatlo</div><div class="value">09/2028</div><div class="sub" id="countdown"></div></div>
+  </div>
+
+  <div class="section-title"><h2>Semana atual</h2><button class="btn secondary small" onclick="showSection('treino')">Abrir ficha</button></div>
+  <div class="card"><div class="week" id="weekCalendar"></div></div>
+
+  <div class="grid two">
+    <div>
+      <div class="section-title"><h2>Treino de hoje</h2></div>
+      <div class="card" id="todayWorkout"></div>
+    </div>
+    <div>
+      <div class="section-title"><h2>Foco da fase atual</h2></div>
+      <div class="card">
+        <span class="tag blue">FASE 1 • CONSTRUÇÃO MUSCULAR</span>
+        <h2>Construir a base antes do triatlo</h2>
+        <p style="color:var(--muted);line-height:1.6">Prioridade em hipertrofia, força, pernas, cadeia posterior, costas, ombros, core, panturrilhas e trabalho unilateral. O objetivo é chegar à fase de endurance com uma estrutura forte.</p>
+        <div class="progress"><i id="phaseProgress" style="width:0%"></i></div>
+        <p id="phaseProgressText" style="font-size:12px;color:var(--muted)"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="treino" class="section">
+  <div class="section-title"><h2>Ficha semanal</h2><div class="tabs" id="dayTabs"></div></div>
+  <div class="card" id="workoutDetail"></div>
+</section>
+
+<section id="exercicios" class="section">
+  <div class="section-title"><h2>Biblioteca de exercícios</h2><input id="exerciseSearch" style="max-width:300px" placeholder="Buscar exercício..." oninput="renderExercises()"></div>
+  <div class="exercise-grid" id="exerciseGrid"></div>
+</section>
+
+<section id="calendario" class="section">
+  <div class="section-title"><h2>Calendário de check-ins</h2><div><button class="btn small ghost" onclick="changeMonth(-1)">←</button> <b id="monthLabel"></b> <button class="btn small ghost" onclick="changeMonth(1)">→</button></div></div>
+  <div class="card" id="monthCalendar"></div>
+</section>
+
+<section id="progresso" class="section">
+  <div class="section-title"><h2>Progresso</h2><button class="btn small" onclick="addMeasurement()">+ Registrar peso</button></div>
+  <div class="grid two">
+    <div class="card">
+      <h3>Treinos por semana</h3><div class="bar-chart" id="chart"></div>
+      <p style="color:var(--muted);font-size:12px">Os dados são calculados pelos seus check-ins salvos neste navegador.</p>
+    </div>
+    <div class="card">
+      <h3>Medidas registradas</h3>
+      <div class="table-wrap"><table><thead><tr><th>Data</th><th>Peso</th><th>Observação</th></tr></thead><tbody id="measurements"></tbody></table></div>
+    </div>
+  </div>
+  <div class="section-title"><h2>Histórico recente</h2></div>
+  <div class="card"><div id="history"></div></div>
+</section>
+
+<section id="periodizacao" class="section">
+  <div class="section-title"><h2>Periodização até setembro de 2028</h2></div>
+  <div class="phase">
+    <div class="phase-card current"><span class="tag blue">FASE 1 • ATUAL</span><h3>Base muscular</h3><b>Set/2026 → Jan/2027</b><p>6 sessões de academia. Hipertrofia + força. Corrida, bike e natação ficam fora do foco principal. Domingo é descanso.</p></div>
+    <div class="phase-card"><span class="tag green">FASE 2</span><h3>Transição</h3><b>Fev → Dez/2027</b><p>Introdução progressiva de natação, ciclismo e corrida. A musculação passa gradualmente para 3–4 sessões, preservando força.</p></div>
+    <div class="phase-card"><span class="tag orange">FASE 3</span><h3>Específica</h3><b>Jan → Set/2028</b><p>Treinamento orientado à prova. Mais volume específico, bricks, técnica de natação, endurance e manutenção da força.</p></div>
+  </div>
+  <div class="section-title"><h2>Periodicidade semanal</h2></div>
+  <div class="card"><div class="table-wrap"><table><thead><tr><th>Dia</th><th>2026–Jan/27</th><th>Objetivo</th><th>Regra</th></tr></thead><tbody>
+  <tr><td>Seg</td><td>Push</td><td>Peito + ombros + tríceps</td><td>1–3 RIR</td></tr>
+  <tr><td>Ter</td><td>Lower A</td><td>Quadríceps + glúteos</td><td>Progressão de carga</td></tr>
+  <tr><td>Qua</td><td>Pull</td><td>Costas + bíceps</td><td>Controle técnico</td></tr>
+  <tr><td>Qui</td><td>Lower B</td><td>Posterior + glúteos</td><td>Prioridade cadeia posterior</td></tr>
+  <tr><td>Sex</td><td>Upper</td><td>Parte superior completa</td><td>Volume moderado</td></tr>
+  <tr><td>Sáb</td><td>Lower C + Core</td><td>Pernas + estabilidade</td><td>Unilateral + core</td></tr>
+  <tr><td>Dom</td><td>DESCANSO</td><td>Recuperação</td><td>Sem musculação</td></tr>
+  </tbody></table></div></div>
+</section>
+
+<section id="config" class="section">
+  <div class="section-title"><h2>Configurações</h2></div>
+  <div class="card">
+    <div class="form-grid">
+      <div><label>Nome</label><input id="name" placeholder="Seu nome"></div>
+      <div><label>Peso atual (kg)</label><input id="weight" type="number" step=".1" placeholder="83"></div>
+      <div><label>Meta do triatlo</label><input value="Setembro de 2028" disabled></div>
+    </div>
+    <br><label>Notas pessoais</label><textarea id="notes" placeholder="Ex.: cargas, dores, observações, sono..."></textarea><br><br>
+    <button class="btn" onclick="saveConfig()">Salvar dados</button>
+    <button class="btn danger" onclick="resetApp()">Apagar todos os dados</button>
+  </div>
+  <div class="section-title"><h2>Como usar</h2></div>
+  <div class="card"><ol style="line-height:1.8;color:var(--muted)">
+    <li>Abra o treino do dia.</li><li>Marque cada exercício conforme concluir.</li><li>Finalize com o check-in da sessão.</li><li>Use o calendário para visualizar consistência.</li><li>Registre o peso periodicamente na aba Progresso.</li><li>Os dados ficam salvos no armazenamento local do navegador.</li>
+  </ol></div>
+</section>
+</main>
+</div>
+
+<div class="modal" id="modal"><div class="modal-box"><div class="modal-head"><h2 id="modalTitle"></h2><button class="close" onclick="closeModal()">✕</button></div><div id="modalContent"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const workouts={
+seg:{name:"Push • Peito, Ombros e Tríceps",focus:"Empurrar / membros superiores", exercises:[
+["Supino reto com barra","4×6–8","90–120s","Peito / tríceps"],["Supino inclinado com halteres","3×8–10","90s","Peito superior"],["Crucifixo na máquina/cabo","3×10–12","60–90s","Peitoral"],["Desenvolvimento com halteres","3×8–10","90s","Ombros"],["Elevação lateral","4×12–15","60s","Deltoide lateral"],["Tríceps na polia","3×10–12","60–90s","Tríceps"],["Tríceps francês","3×10–12","60–90s","Tríceps"]]},
+ter:{name:"Lower A • Quadríceps + Glúteos",focus:"Força de pernas / unilateral",exercises:[
+["Agachamento livre","4×6–8","120s","Quadríceps / glúteos"],["Leg press","4×8–10","90–120s","Quadríceps"],["Afundo búlgaro","3×8–10 / perna","90s","Unilateral"],["Cadeira extensora","3×10–15","60–90s","Quadríceps"],["Hip thrust","4×8–10","90–120s","Glúteos"],["Panturrilha em pé","4×10–15","60s","Panturrilha"],["Tibial anterior","3×15–20","45–60s","Tibial"]]},
+qua:{name:"Pull • Costas + Bíceps",focus:"Puxar / costas / escápulas",exercises:[
+["Barra fixa ou puxada alta","4×6–10","90–120s","Dorsais"],["Remada curvada","4×6–8","120s","Costas"],["Remada unilateral","3×8–10","90s","Costas / unilateral"],["Puxada neutra","3×10–12","75–90s","Dorsais"],["Face pull","3×12–15","60s","Escápulas / deltoide posterior"],["Rosca direta","3×8–10","60–90s","Bíceps"],["Rosca martelo","3×10–12","60s","Bíceps / antebraço"]]},
+qui:{name:"Lower B • Posterior + Glúteos",focus:"Cadeia posterior",exercises:[
+["Levantamento terra romeno","4×6–8","120s","Posterior / glúteos"],["Mesa flexora","4×8–12","75–90s","Posterior"],["Hip thrust","3×8–10","90s","Glúteos"],["Passada caminhando","3×10 / perna","90s","Unilateral"],["Cadeira flexora unilateral","3×10–12","60–75s","Posterior"],["Panturrilha sentado","4×12–15","60s","Panturrilha"],["Tibial anterior","3×15–20","45–60s","Tibial"]]},
+sex:{name:"Upper • Parte Superior Completa",focus:"Equilíbrio / manutenção de volume",exercises:[
+["Supino inclinado","3×8–10","90s","Peito"],["Remada baixa","3×8–10","90s","Costas"],["Desenvolvimento na máquina","3×8–10","90s","Ombros"],["Puxada alta","3×10–12","75–90s","Dorsais"],["Elevação lateral","3×12–15","60s","Ombros"],["Face pull","3×12–15","60s","Escápulas"],["Rosca direta","2×10–12","60s","Bíceps"],["Tríceps corda","2×10–12","60s","Tríceps"]]},
+sab:{name:"Lower C + Core • Pernas e Estabilidade",focus:"Unilateral / estabilidade / core",exercises:[
+["Agachamento frontal ou Hack squat","3×8–10","90–120s","Quadríceps"],["Step-up","3×8–10 / perna","75–90s","Unilateral"],["Cadeira extensora","3×12–15","60s","Quadríceps"],["Mesa flexora","3×10–12","60–90s","Posterior"],["Hip thrust unilateral","3×10 / perna","75s","Glúteos"],["Panturrilha unilateral","3×12–15","60s","Panturrilha"],["Prancha","3×30–60s","45–60s","Core"],["Elevação de pernas","3×10–15","45–60s","Abdômen"],["Pallof press","3×10–12 / lado","45–60s","Anti-rotação"],["Prancha lateral","3×30–45s / lado","45s","Core lateral"]]},
+dom:{name:"Descanso",focus:"Recuperação",exercises:[]}
+};
+const dayNames={seg:"SEG",ter:"TER",qua:"QUA",qui:"QUI",sex:"SEX",sab:"SÁB",dom:"DOM"};
+const dayKeys=["seg","ter","qua","qui","sex","sab","dom"];
+const descriptions={
+"Supino reto com barra":"Deite com escápulas apoiadas, pés firmes e desça a barra de forma controlada até a região média do peito. Empurre sem perder estabilidade.",
+"Supino inclinado com halteres":"Banco levemente inclinado. Desça os halteres controlando e empurre mantendo punhos alinhados aos cotovelos.",
+"Crucifixo na máquina/cabo":"Mantenha leve flexão nos cotovelos e aproxime as mãos sem transformar o movimento em um supino.",
+"Desenvolvimento com halteres":"Halteres ao lado dos ombros. Empurre acima da cabeça sem hiperestender a lombar.",
+"Elevação lateral":"Eleve os braços lateralmente até aproximadamente a linha dos ombros, sem impulso.",
+"Tríceps na polia":"Cotovelos próximos ao tronco. Estenda os braços e retorne controlando.",
+"Tríceps francês":"Flexione os cotovelos mantendo-os apontados para frente e estenda sem movimentar excessivamente os ombros.",
+"Agachamento livre":"Pés estáveis, tronco firme e joelhos acompanhando a direção dos pés. Desça dentro da amplitude confortável e suba mantendo pressão no chão.",
+"Leg press":"Desça a plataforma controlando e evite perder a posição da lombar. Empurre distribuindo a força pelos pés.",
+"Afundo búlgaro":"Um pé elevado atrás. Desça verticalmente mantendo o joelho da frente alinhado ao pé e suba pelo apoio da perna dianteira.",
+"Cadeira extensora":"Ajuste o eixo do aparelho ao joelho. Estenda controlando e retorne sem soltar a carga.",
+"Hip thrust":"Apoie a parte superior das costas, pés firmes e eleve o quadril contraindo os glúteos no topo.",
+"Panturrilha em pé":"Suba até a máxima elevação confortável e desça lentamente, mantendo a base do pé estável.",
+"Tibial anterior":"Eleve a ponta dos pés mantendo os calcanhares apoiados; controle a descida.",
+"Barra fixa ou puxada alta":"Puxe os cotovelos para baixo, mantendo o tronco estável e evitando balançar.",
+"Remada curvada":"Coluna neutra e quadril para trás. Puxe a carga em direção ao tronco sem transformar o movimento em balanço.",
+"Remada unilateral":"Apoie-se de forma estável e puxe o cotovelo para trás mantendo o tronco controlado.",
+"Puxada neutra":"Pegada neutra e cotovelos apontando para baixo; puxe sem jogar o corpo para trás.",
+"Face pull":"Puxe a corda em direção ao rosto, abrindo os cotovelos e mantendo controle das escápulas.",
+"Rosca direta":"Mantenha os cotovelos estáveis e flexione os braços sem usar balanço do tronco.",
+"Rosca martelo":"Pegada neutra, cotovelos próximos ao corpo e movimento controlado.",
+"Levantamento terra romeno":"Quadril vai para trás enquanto a coluna permanece neutra. Desça até sentir alongamento do posterior sem perder posição.",
+"Mesa flexora":"Flexione os joelhos controlando o retorno e evitando levantar o quadril do apoio.",
+"Passada caminhando":"Dê um passo estável, desça com controle e avance mantendo joelho e pé alinhados.",
+"Cadeira flexora unilateral":"Trabalhe uma perna por vez com amplitude confortável e retorno lento.",
+"Desenvolvimento na máquina":"Ajuste o assento para que as mãos iniciem próximas à altura dos ombros. Empurre sem perder a postura.",
+"Remada baixa":"Puxe em direção ao abdômen mantendo peito aberto e sem projetar a cabeça.",
+"Tríceps corda":"Empurre a corda para baixo e retorne mantendo os cotovelos estáveis.",
+"Agachamento frontal ou Hack squat":"Mantenha o tronco firme e permita que os joelhos avancem naturalmente acompanhando os pés.",
+"Step-up":"Suba em uma plataforma usando principalmente a perna apoiada, sem impulsionar excessivamente com a perna de baixo.",
+"Hip thrust unilateral":"Eleve o quadril com uma perna enquanto mantém a pelve nivelada.",
+"Prancha":"Corpo em linha, abdômen contraído e glúteos ativos. Evite deixar a lombar cair.",
+"Elevação de pernas":"Eleve as pernas mantendo o tronco estável e controle a descida.",
+"Pallof press":"Afaste a alça do corpo resistindo à rotação. Mantenha quadril e tronco alinhados.",
+"Prancha lateral":"Apoie antebraço e lateral do pé, eleve o quadril e mantenha o corpo alinhado."
+};
+
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function dateKey(d=new Date()){let x=new Date(d);return x.toISOString().slice(0,10)}
+function dayKeyFromDate(d=new Date()){let n=new Date(d).getDay();return ["dom","seg","ter","qua","qui","sex","sab"][n]}
+function monday(d=new Date()){let x=new Date(d);let n=x.getDay();let diff=n===0?-6:1-n;x.setDate(x.getDate()+diff);x.setHours(0,0,0,0);return x}
+function storage(){return JSON.parse(localStorage.getItem("triBuilderData")||'{"done":{},"measurements":[],"config":{},"notes":{}}')}
+let data=storage(), selectedDay=dayKeyFromDate(), calendarDate=new Date();
+function save(){localStorage.setItem("triBuilderData",JSON.stringify(data))}
+function toast(msg){let t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
+function toggleMenu(){document.getElementById("sidebar").classList.toggle("open")}
+function showSection(id){
+ document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.section===id));
+ document.getElementById("pageTitle").textContent=document.querySelector(`button[data-section="${id}"]`).textContent.replace(/^[^ ]+ /,"");
+ if(id==="treino")renderWorkout();
+ if(id==="exercicios")renderExercises();
+ if(id==="calendario")renderMonth();
+ if(id==="progresso")renderProgress();
+ if(window.innerWidth<800)document.getElementById("sidebar").classList.remove("open");
+}
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>showSection(b.dataset.section));
+
+function renderWeek(){
+ const start=monday();let html="";
+ for(let i=0;i<7;i++){
+  let d=new Date(start);d.setDate(start.getDate()+i);let key=dayKeyFromDate(d),dk=dateKey(d),done=!!data.done[dk];
+  html+=`<div class="day ${key==="dom"?"rest":"training"} ${dk===dateKey()?"today":""}" onclick="selectedDay='${key}';showSection('treino')">
+   <strong>${dayNames[key]}</strong><div class="date">${d.getDate()}</div><div style="font-size:11px;margin-top:5px">${workouts[key].name}</div>
+   <span class="tag ${done?"green":key==="dom"?"":"blue"}">${done?"✓ CONCLUÍDO":key==="dom"?"DESCANSO":"TREINO"}</span>
+  </div>`;
+ }
+ document.getElementById("weekCalendar").innerHTML=html;
+ let dk=dateKey(),wk=dayKeyFromDate();document.getElementById("todayWorkout").innerHTML=workouts[wk].exercises.length?
+ `<span class="tag blue">${dayNames[wk]}</span><h3>${workouts[wk].name}</h3><p style="color:var(--muted)">${workouts[wk].exercises.length} exercícios • foco: ${workouts[wk].focus}</p>
+ <button class="btn small" onclick="selectedDay='${wk}';showSection('treino')">Abrir treino</button>`:
+ `<h3>Domingo: descanso</h3><p style="color:var(--muted)">Recuperação. Sono, alimentação e mobilidade leve são prioridade.</p>`;
+ updateKpis();
+}
+function updateKpis(){
+ const start=monday(),weekDates=[];for(let i=0;i<7;i++){let d=new Date(start);d.setDate(start.getDate()+i);weekDates.push(dateKey(d))}
+ const done=weekDates.filter(x=>data.done[x]).length;document.getElementById("kpiDone").textContent=done;
+ let streak=0,d=new Date();while(data.done[dateKey(d)]){streak++;d.setDate(d.getDate()-1)}document.getElementById("kpiStreak").textContent=streak+" 🔥";
+ let target=new Date("2028-09-01T00:00:00"),diff=Math.max(0,Math.ceil((target-new Date())/86400000));document.getElementById("countdown").textContent=`~${diff} dias até setembro/2028`;
+ let phaseStart=new Date("2026-09-28T00:00:00"),phaseEnd=new Date("2027-01-31T23:59:59"),now=new Date();
+ let pct=Math.max(0,Math.min(100,(now-phaseStart)/(phaseEnd-phaseStart)*100));document.getElementById("phaseProgress").style.width=pct+"%";document.getElementById("phaseProgressText").textContent=`Progresso estimado da fase 1: ${Math.round(pct)}%`;
+}
+function renderDayTabs(){
+ document.getElementById("dayTabs").innerHTML=dayKeys.map(k=>`<button class="${k===selectedDay?"active":""}" onclick="selectedDay='${k}';renderWorkout()">${dayNames[k]}</button>`).join("");
+}
+function renderWorkout(){
+ renderDayTabs();let w=workouts[selectedDay];
+ if(!w.exercises.length){document.getElementById("workoutDetail").innerHTML=`<div class="empty"><div style="font-size:45px">🛌</div><h2>Dia de descanso</h2><p>Use o domingo para recuperação. Não é necessário cumprir musculação.</p></div>`;return}
+ let today=new Date(),targetDay=dayKeys.indexOf(selectedDay)+1; if(targetDay===7)targetDay=0;
+ let diff=targetDay-today.getDay();let d=new Date(today);d.setDate(today.getDate()+diff);let dk=dateKey(d),checked=data.done[dk]||[];
+ document.getElementById("workoutDetail").innerHTML=`
+ <div style="display:flex;justify-content:space-between;gap:15px;align-items:flex-start;flex-wrap:wrap"><div><span class="tag blue">${dayNames[selectedDay]}</span><h2>${w.name}</h2><p style="color:var(--muted)">${w.focus} • ${w.exercises.length} exercícios • ${dk}</p></div><button class="btn green" onclick="finishWorkout('${dk}')">${data.done[dk]?"✓ Treino concluído":"Finalizar treino"}</button></div>
+ <div class="workout-list">${w.exercises.map((e,i)=>{let id=selectedDay+"-"+i;return `<div class="workout-row ${checked.includes(i)?"done":""}">
+ <div><b>${e[0]}</b><div style="font-size:12px;color:var(--muted)">${e[1]} • descanso ${e[2]} • ${e[3]}</div></div>
+ <input class="check" type="checkbox" ${checked.includes(i)?"checked":""} onchange="toggleExercise('${dk}',${i},this.checked)" onclick="event.stopPropagation()">
+ </div>`}).join("")}</div>
+ <div style="margin-top:15px;padding:13px;background:#f8fafc;border-radius:14px;font-size:12px;color:var(--muted)"><b>Regra de progressão:</b> quando atingir o topo da faixa de repetições em todas as séries com técnica boa e 1–3 RIR, aumente a carga de forma pequena e volte para a parte inferior da faixa.</div>`;
+}
+function toggleExercise(dk,i,on){data.done[dk]=Array.isArray(data.done[dk])?data.done[dk]:[];if(on&&!data.done[dk].includes(i))data.done[dk].push(i);if(!on)data.done[dk]=data.done[dk].filter(x=>x!==i);save();renderWorkout();renderWeek()}
+function finishWorkout(dk){
+ data.done[dk]=Array.isArray(data.done[dk])?data.done[dk]:[];
+ if(!data.done[dk].length){toast("Marque pelo menos um exercício antes do check-in.");return}
+ data.done[dk].finishedAt=new Date().toISOString();save();toast("Treino registrado! 💪");renderWorkout();renderWeek();updateKpis();
+}
+function checkinToday(){let key=dayKeyFromDate();selectedDay=key;if(key==="dom"){toast("Hoje é descanso. Bom trabalho na recuperação!");return}showSection("treino")}
+function renderExercises(){
+ let q=(document.getElementById("exerciseSearch").value||"").toLowerCase(), all=[];
+ Object.entries(workouts).forEach(([day,w])=>w.exercises.forEach((e,i)=>{if(!all.some(x=>x.name===e[0]))all.push({name:e[0],sets:e[1],rest:e[2],focus:e[3],day})}));
+ all=all.filter(e=>e.name.toLowerCase().includes(q));
+ document.getElementById("exerciseGrid").innerHTML=all.map(e=>`<div class="exercise"><div class="body"><h3>${e.name}</h3><p>${descriptions[e.name]||"Execute com controle, postura estável e amplitude confortável."}</p><div class="meta"><span>${e.sets}</span><span>${e.rest}</span><span>${e.focus}</span></div><br><button class="btn small secondary" onclick="openExercise('${e.name.replace(/'/g,"\\'")}','${e.sets}','${e.rest}')">Ver instruções</button></div></div>`).join("")||"<div class='empty'>Nenhum exercício encontrado.</div>";
+}
+function openExercise(name,sets,rest){document.getElementById("modalTitle").textContent=name;document.getElementById("modalContent").innerHTML=`<p style="line-height:1.7">${descriptions[name]||""}</p><div class="meta"><span>${sets}</span><span>Descanso: ${rest}</span><span>RIR: 1–3</span></div><br><b>Checklist técnico</b><ul style="line-height:1.8;color:#6b7280"><li>Controle a fase de descida.</li><li>Mantenha articulações alinhadas e postura estável.</li><li>Evite usar impulso para completar repetições.</li><li>Interrompa se surgir dor aguda ou fora do padrão muscular esperado.</li></ul>`;document.getElementById("modal").classList.add("open")}
+function closeModal(){document.getElementById("modal").classList.remove("open")}
+function renderMonth(){
+ let y=calendarDate.getFullYear(),m=calendarDate.getMonth();document.getElementById("monthLabel").textContent=new Intl.DateTimeFormat("pt-BR",{month:"long",year:"numeric"}).format(calendarDate);
+ let first=new Date(y,m,1),last=new Date(y,m+1,0),start=first.getDay(),days=last.getDate(),html="<div style='display:grid;grid-template-columns:repeat(7,1fr);gap:6px'>";
+ ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].forEach(x=>html+=`<div style="padding:8px;font-size:11px;font-weight:900;color:#6b7280">${x}</div>`);
+ for(let i=0;i<start;i++)html+="<div></div>";
+ for(let d=1;d<=days;d++){let dt=new Date(y,m,d),dk=dateKey(dt),key=dayKeyFromDate(dt),done=!!data.done[dk];html+=`<div style="min-height:72px;border:1px solid #e5e7eb;border-radius:12px;padding:8px;background:${done?"#f0fdf4":"#fff"}"><b>${d}</b><div style="font-size:10px;color:#6b7280;margin-top:5px">${key==="dom"?"DESC":dayNames[key]}</div>${done?"<div style='color:#16a34a;font-size:12px;font-weight:900'>✓</div>":""}</div>`}
+ html+="</div>";document.getElementById("monthCalendar").innerHTML=html;
+}
+function changeMonth(n){calendarDate.setMonth(calendarDate.getMonth()+n);renderMonth()}
+function renderProgress(){
+ let keys=Object.keys(data.done).sort(),weeks={};keys.forEach(k=>{let d=new Date(k),mon=monday(d),wk=dateKey(mon);weeks[wk]=(weeks[wk]||0)+1});
+ let arr=Object.entries(weeks).slice(-8),max=Math.max(6,...arr.map(x=>x[1]));document.getElementById("chart").innerHTML=arr.map(([k,v])=>`<div class="bar" style="height:${Math.max(4,v/max*120)}px"><span>${new Date(k).getDate()}/${new Date(k).getMonth()+1}</span></div>`).join("")||"<div class='empty'>Faça seu primeiro check-in.</div>";
+ document.getElementById("measurements").innerHTML=(data.measurements||[]).slice().reverse().map(x=>`<tr><td>${x.date}</td><td>${x.weight} kg</td><td>${esc(x.note||"")}</td></tr>`).join("")||"<tr><td colspan='3'>Nenhuma medição.</td></tr>";
+ document.getElementById("history").innerHTML=keys.slice(-15).reverse().map(k=>`<div style="padding:11px 0;border-bottom:1px solid #eee"><b>${k}</b> — ${Array.isArray(data.done[k])?data.done[k].length:0} exercícios marcados ${data.done[k]?.finishedAt?"• treino finalizado ✓":""}</div>`).join("")||"<div class='empty'>Seu histórico aparecerá aqui.</div>";
+}
+function addMeasurement(){
+ let w=prompt("Peso atual em kg:");if(!w)return;let note=prompt("Observação (opcional):")||"";data.measurements=data.measurements||[];data.measurements.push({date:dateKey(),weight:Number(w).toFixed(1),note});save();renderProgress();toast("Medição registrada.");
+}
+function saveConfig(){data.config={name:document.getElementById("name").value,weight:document.getElementById("weight").value};data.notes=document.getElementById("notes").value;save();toast("Dados salvos.")}
+function loadConfig(){document.getElementById("name").value=data.config?.name||"";document.getElementById("weight").value=data.config?.weight||"";document.getElementById("notes").value=data.notes||""}
+function resetApp(){if(confirm("Isso apagará check-ins, medidas e configurações deste navegador. Continuar?")){localStorage.removeItem("triBuilderData");location.reload()}}
+document.getElementById("todayText").textContent=new Intl.DateTimeFormat("pt-BR",{weekday:"long",day:"2-digit",month:"long",year:"numeric"}).format(new Date());
+loadConfig();renderWeek();renderWorkout();renderExercises();renderMonth();renderProgress();
+</script>
+</body>
+</html>
